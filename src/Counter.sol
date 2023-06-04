@@ -1,14 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-contract Counter {
-    uint256 public number;
+import {Constants} from "./Constants.sol";
 
-    function setNumber(uint256 newNumber) public {
-        number = newNumber;
-    }
+contract ZkSNARKToken {
+    string public name;
+    string public symbol;
 
-    function increment() public {
-        number++;
+    mapping(address => uint256) public hashBalances;
+
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address[] memory _initialHolders
+    ) {
+        name = _name;
+        symbol = _symbol;
+
+        for (uint256 i = 0; i < _initialHolders.length; i++) {
+            hashBalances[_initialHolders[i]] = Constants
+                .INITIAL_SUPPLY_PER_HOLDERS;
+        }
     }
 }
