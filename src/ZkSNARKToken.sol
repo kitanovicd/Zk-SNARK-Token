@@ -10,13 +10,14 @@ contract ZkSNARKToken {
 
     IVerifier public verifier;
 
+    //This is hash of token computed by Zokrates sha512packed function
     mapping(address => uint256) public hashBalances;
     mapping(address => mapping(address => bool)) public hasFullAllowance;
 
     constructor(
+        address _verifier,
         string memory _name,
         string memory _symbol,
-        address _verifier,
         address[] memory _initialHolders
     ) {
         name = _name;
