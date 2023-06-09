@@ -6,21 +6,26 @@ def main(
     private field amount,
     field hashSenderBalance,
     field hashReceiverBalance,
-    field hashAmount
-) -> field[2] {
+    field hashAmount,
+    field hashSenderBalanceAfter,
+    field hashReceiverBalanceAfter
+) -> bool {
     assert(amount <= senderBalance);
 
     field[2] realHashSenderBalance = sha256([0,0,0,senderBalance]);
     assert(hashSenderBalance == realHashSenderBalance[0]);
 
     field[2] realHashReceiverBalance = sha256([0,0,0,receiverBalance]);
-    assert(receiverBalance == realHashReceiverBalance[0]);
+    assert(hashReceiverBalance == realHashReceiverBalance[0]);
 
     field[2] realHashAmount = sha256([0,0,0,amount]);
-    assert(amount == realHashAmount[0]);
+    assert(hashAmount == realHashAmount[0]);
 
-    field[2] newHashSenderBalance = sha256([0,0,0,senderBalance - amount]);
-    field[2] newHashReceiverBalance = sha256([0,0,0,receiverBalance + amount]);
+    field[2] realHashSenderBalanceAfter = sha256([0,0,0,senderBalance - amount]);
+    assert(hashSenderBalanceAfter == realHashSenderBalanceAfter[0]);
+    
+    field[2] realHashReceiverBalanceAfter = sha256([0,0,0,receiverBalance + amount]);
+    assert(hashReceiverBalanceAfter == realHashReceiverBalanceAfter[0]);
 
-    return [newHashSenderBalance[0], newHashReceiverBalance[0]];
+    return true;
 }
