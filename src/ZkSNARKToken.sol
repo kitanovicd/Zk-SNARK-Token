@@ -10,8 +10,7 @@ contract ZkSNARKToken {
 
     IVerifier public verifier;
 
-    //This is hash of token computed by Zokrates sha512packed function
-    mapping(address => uint256) public hashBalances;
+    mapping(address => bytes32) public hashBalances;
     mapping(address => mapping(address => bool)) public hasFullAllowance;
 
     constructor(
@@ -25,8 +24,9 @@ contract ZkSNARKToken {
         verifier = IVerifier(_verifier);
 
         for (uint256 i = 0; i < _initialHolders.length; i++) {
-            hashBalances[_initialHolders[i]] = Constants
-                .INITIAL_SUPPLY_PER_HOLDERS;
+            hashBalances[_initialHolders[i]] = bytes32(
+                Constants.INITIAL_SUPPLY_PER_HOLDERS
+            );
         }
     }
 
