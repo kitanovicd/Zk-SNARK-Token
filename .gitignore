@@ -12,3 +12,7 @@ docs/
 
 # Dotenv file
 .env
+
+# ZoKrates
+zokrates/*
+!zokrates/hashBalances.zok

@@ -1,32 +1,52 @@
 // SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.13;
 
 import {Constants} from "./Constants.sol";
-import {IVerifier} from "./interfaces/IVerifier.sol";
+import {Verifier} from "./Verifier.sol";
+
+error ProofFailed();
 
 contract ZkSNARKToken {
     string public name;
     string public symbol;
 
-    IVerifier public verifier;
+    Verifier public verifier;
 
-    mapping(address => bytes32) public hashBalances;
+    mapping(address => uint256) public hashBalances;
     mapping(address => mapping(address => bool)) public hasFullAllowance;
 
     constructor(
-        address _verifier,
+        Verifier _verifier,
         string memory _name,
         string memory _symbol,
         address[] memory _initialHolders
     ) {
         name = _name;
         symbol = _symbol;
-        verifier = IVerifier(_verifier);
+        verifier = _verifier;
 
         for (uint256 i = 0; i < _initialHolders.length; i++) {
-            hashBalances[_initialHolders[i]] = bytes32(
-                Constants.INITIAL_SUPPLY_PER_HOLDERS
-            );
+            hashBalances[_initialHolders[i]] = Constants
+                .INITIAL_SUPPLY_PER_HOLDERS;
+        }
+    }
+
+    function trasfer(
+        address receiver,
+        Verifier.Proof memory proof,
+        uint256[6] memory inputParams
+    ) external {
+        inputParams[0] = hashBalances[msg.sender];
+        inputParams[1] = hashBalances[receiver];
+
+        bool valid = verifier.verifyTx(proof, inputParams);
+
+        if (valid) {
+            hashBalances[msg.sender] = inputParams[3];
+            hashBalances[receiver] = inputParams[4];
+        } else {
+            revert ProofFailed();
         }
     }
 
