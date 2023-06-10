@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {ZkSNARKToken} from "src/ZkSNARKToken.sol";
+import {ZkSNARKToken, ProofFailed, InsufficientAllowance} from "src/ZkSNARKToken.sol";
 import {Verifier, Pairing} from "src/Verifier.sol";
 import {Constants} from "src/Constants.sol";
 
@@ -48,52 +48,11 @@ contract ContractBTest is Test {
     function testTransfer() public {
         vm.startPrank(bob);
 
-        Verifier.Proof memory proof = Verifier.Proof(
-            Pairing.G1Point(
-                0x1dbc05b0c947a3b59d5fda4018827094fc18e45dde8471e6d98d102051d99522,
-                0x11793c70ce4fd1d1001153341f5255e835d86ab40c7ac55fb593963f72a54568
-            ),
-            Pairing.G2Point(
-                [
-                    0x0a43d2cee9aefe9f4117e25ea5082c57244a9e58a66abd94cf7256080de320e3,
-                    0x1f0737cb6290379db6ee1c3a6ef97efe65433d9914c7c88d6ed46acb70ceddfb
-                ],
-                [
-                    0x10d89117b0002bf74ae2827ae45edbb40ba0d4d775f401cd7fc67b385b7b37d1,
-                    0x0c4d58d0a78a06314d4153f149d96c0b1279924578a4c3f55676d811d54fd92a
-                ]
-            ),
-            Pairing.G1Point(
-                0x29f3e0b99ad851ac573237539409af0d80c07145ad38fbb71a9558f0f965b6fd,
-                0x1f2f80c81446b03eb58224173fa20b0a1f63037bdaf12a6ae7fb6a5b5430bc7f
-            )
-        );
+        Verifier.Proof memory proof = _validProof();
+        uint256[6] memory inputs = _validInputs();
 
         //Bob sends everything to Alice
-        zkSNARKToken.transfer(
-            alice,
-            proof,
-            [
-                uint256(
-                    0x00000000000000000000000000000000c2e402cf88bcbe6ab09f882ebe79276b
-                ),
-                uint256(
-                    0x00000000000000000000000000000000c2e402cf88bcbe6ab09f882ebe79276b
-                ),
-                uint256(
-                    0x00000000000000000000000000000000c2e402cf88bcbe6ab09f882ebe79276b
-                ),
-                uint256(
-                    0x00000000000000000000000000000000f5a5fd42d16a20302798ef6ed309979b
-                ),
-                uint256(
-                    0x00000000000000000000000000000000b50a6a432fcb4d7254ac3fc08338b631
-                ),
-                uint256(
-                    0x0000000000000000000000000000000000000000000000000000000000000001
-                )
-            ]
-        );
+        zkSNARKToken.transfer(alice, proof, inputs);
 
         //This is the hash of the balances after the transfer
         //Alice has 200 and Bob has 0
@@ -107,5 +66,118 @@ contract ContractBTest is Test {
         );
 
         vm.stopPrank();
+    }
+
+    function testTransferRevertIn_validProof() public {
+        vm.startPrank(bob);
+
+        Verifier.Proof memory proof = _validProof();
+
+        //inputs[2] is sending amount, in this case bigger then balance of bob
+        uint256[6] memory inputs = _validInputs();
+        inputs[2]++;
+
+        vm.expectRevert(abi.encodeWithSelector(ProofFailed.selector)); //Revert because bob does not have enough tokens
+        zkSNARKToken.transfer(alice, proof, inputs);
+
+        vm.stopPrank();
+    }
+
+    function testTransferFrom() public {
+        vm.startPrank(bob);
+        zkSNARKToken.setApproval(alice, true);
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        zkSNARKToken.transferFrom(bob, alice, _validProof(), _validInputs());
+        vm.stopPrank();
+
+        //Alice has 200 and Bob has 0
+        assertEq(
+            zkSNARKToken.hashBalances(bob),
+            0x00000000000000000000000000000000f5a5fd42d16a20302798ef6ed309979b
+        );
+        assertEq(
+            zkSNARKToken.hashBalances(alice),
+            0x00000000000000000000000000000000b50a6a432fcb4d7254ac3fc08338b631
+        );
+    }
+
+    function testTransferFromRevertInsufficientAllowance() public {
+        vm.startPrank(alice);
+        vm.expectRevert(abi.encodeWithSelector(InsufficientAllowance.selector));
+
+        zkSNARKToken.transferFrom(bob, alice, _validProof(), _validInputs());
+        vm.stopPrank();
+    }
+
+    function testTransferFromRevertProofFailed() public {
+        vm.startPrank(bob);
+        zkSNARKToken.setApproval(alice, true);
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+
+        uint256[6] memory inputs = _validInputs();
+        inputs[2]++;
+
+        vm.expectRevert(abi.encodeWithSelector(ProofFailed.selector));
+        zkSNARKToken.transferFrom(bob, alice, _validProof(), inputs);
+        vm.stopPrank();
+    }
+
+    function testSetApproval() public {
+        vm.startPrank(bob);
+        zkSNARKToken.setApproval(alice, true);
+        vm.stopPrank();
+
+        assertEq(zkSNARKToken.hasFullAllowance(bob, alice), true);
+    }
+
+    function _validProof() internal pure returns (Verifier.Proof memory) {
+        return
+            Verifier.Proof(
+                Pairing.G1Point(
+                    0x1dbc05b0c947a3b59d5fda4018827094fc18e45dde8471e6d98d102051d99522,
+                    0x11793c70ce4fd1d1001153341f5255e835d86ab40c7ac55fb593963f72a54568
+                ),
+                Pairing.G2Point(
+                    [
+                        0x0a43d2cee9aefe9f4117e25ea5082c57244a9e58a66abd94cf7256080de320e3,
+                        0x1f0737cb6290379db6ee1c3a6ef97efe65433d9914c7c88d6ed46acb70ceddfb
+                    ],
+                    [
+                        0x10d89117b0002bf74ae2827ae45edbb40ba0d4d775f401cd7fc67b385b7b37d1,
+                        0x0c4d58d0a78a06314d4153f149d96c0b1279924578a4c3f55676d811d54fd92a
+                    ]
+                ),
+                Pairing.G1Point(
+                    0x29f3e0b99ad851ac573237539409af0d80c07145ad38fbb71a9558f0f965b6fd,
+                    0x1f2f80c81446b03eb58224173fa20b0a1f63037bdaf12a6ae7fb6a5b5430bc7f
+                )
+            );
+    }
+
+    function _validInputs() internal pure returns (uint256[6] memory) {
+        return [
+            uint256(
+                0x00000000000000000000000000000000c2e402cf88bcbe6ab09f882ebe79276b
+            ),
+            uint256(
+                0x00000000000000000000000000000000c2e402cf88bcbe6ab09f882ebe79276b
+            ),
+            uint256(
+                0x00000000000000000000000000000000c2e402cf88bcbe6ab09f882ebe79276b
+            ),
+            uint256(
+                0x00000000000000000000000000000000f5a5fd42d16a20302798ef6ed309979b
+            ),
+            uint256(
+                0x00000000000000000000000000000000b50a6a432fcb4d7254ac3fc08338b631
+            ),
+            uint256(
+                0x0000000000000000000000000000000000000000000000000000000000000001
+            )
+        ];
     }
 }
