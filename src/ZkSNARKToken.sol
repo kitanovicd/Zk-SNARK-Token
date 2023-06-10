@@ -32,7 +32,7 @@ contract ZkSNARKToken {
         }
     }
 
-    function trasfer(
+    function transfer(
         address receiver,
         Verifier.Proof memory proof,
         uint256[6] memory inputParams
