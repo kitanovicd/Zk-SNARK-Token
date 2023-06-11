@@ -34,10 +34,10 @@ The repository contains the following files:
 
 To deploy the ZkSNARK Token contract, initialize it with the following parameters:
 
-* *_verifier*: The address of the deployed Verifier contract.
-* *_name*: The name of the token.
-_symbol: The symbol of the token.
-* *_initialHolders*: An array of addresses representing the initial token holders.
+* **_verifier**: The address of the deployed Verifier contract.
+* **_name**: The name of the token.
+* **_symbol**: The symbol of the token.
+* **_initialHolders**: An array of addresses representing the initial token holders.
 <br>
 
 Once the contract is deployed, you can interact with it using the following methods:
