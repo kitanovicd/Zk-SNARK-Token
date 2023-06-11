@@ -25,11 +25,12 @@ forge build
 The repository contains the following files:
 
 * **ZkSNARKToken.sol**: The main smart contract implementing the zkSNARK token. It handles token transfers and approvals.
-* **Constants.sol**: A library defining constant values used by the token contract.
+* **Constants.sol**: File where constant values used by the token contract are defined.
 * **Verifier.sol**: A contract that provides the verification logic for zkSNARK proofs.
-* **Errors.sol**: A library defining custom error messages for the contract.
+* **Errors.sol**: File where custom errors for contracts are defined.
 * **hashBalances.zok**: The Zokrates code that defines the zkSNARK circuit used for verifying token transfers.
-Usage
+
+## Usage
 
 To deploy the ZkSNARK Token contract, initialize it with the following parameters:
 
