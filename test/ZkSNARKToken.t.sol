@@ -2,9 +2,10 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {ZkSNARKToken, ProofFailed, InsufficientAllowance} from "src/ZkSNARKToken.sol";
+import {ZkSNARKToken} from "src/ZkSNARKToken.sol";
 import {Verifier, Pairing} from "src/Verifier.sol";
 import {Constants} from "src/Constants.sol";
+import {ProofFailed, InsufficientAllowance} from "src/Errors.sol";
 
 contract ContractBTest is Test {
     address private alice;

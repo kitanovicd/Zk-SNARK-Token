@@ -4,9 +4,7 @@ pragma solidity ^0.8.13;
 
 import {Constants} from "./Constants.sol";
 import {Verifier} from "./Verifier.sol";
-
-error ProofFailed();
-error InsufficientAllowance();
+import {ProofFailed, InsufficientAllowance} from "./Errors.sol";
 
 contract ZkSNARKToken {
     string public name;
