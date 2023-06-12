@@ -21,35 +21,6 @@ Compile the smart contracts:
 forge build
 ```
 
-## Contract Structure
-The repository contains the following files:
-
-* **ZkSNARKToken.sol**: The main smart contract implementing the zkSNARK token. It handles token transfers and approvals.
-* **Constants.sol**: File where constant values used by the token contract are defined.
-* **Verifier.sol**: A contract that provides the verification logic for zkSNARK proofs.
-* **Errors.sol**: File where custom errors for contracts are defined.
-* **hashBalances.zok**: The Zokrates code that defines the zkSNARK circuit used for verifying token transfers.
-
-## Usage
-
-To deploy the ZkSNARK Token contract, initialize it with the following parameters:
-
-* **_verifier**: The address of the deployed Verifier contract.
-* **_name**: The name of the token.
-* **_symbol**: The symbol of the token.
-* **_initialHolders**: An array of addresses representing the initial token holders.
-<br>
-
-Once the contract is deployed, you can interact with it using the following methods:
-
-* **transfer**: Transfer tokens from the sender's address to the specified receiver. Requires a zkSNARK proof and input parameters.
-* **transferFrom**: Transfer tokens on behalf of the _from address to the _to address. Requires a zkSNARK proof, input parameters, and allowance from the sender.
-* **setApproval**: Set or revoke full allowance for a specific spender.
-
-## zkSNARK Circuit
-
-The zkSNARK circuit used in this contract verifies the integrity of token transfers. The Zokrates code for the circuit is available in the **hashBalances.zok** file. It ensures that the transferred amount is less than or equal to the sender's balance and validates the hash of the sender and receiver balances before and after the transfer.
-
 If you want to generate proof you need to follow next steps:
 
 Place yourself in zokrates directory:
@@ -80,4 +51,31 @@ zokrates generate-proof
 After you generated proof you need to copy proof and input parameters and perform smart contract call
 
 
+## Contract Structure
+The repository contains the following files:
 
+* **ZkSNARKToken.sol**: The main smart contract implementing the zkSNARK token. It handles token transfers and approvals.
+* **Constants.sol**: File where constant values used by the token contract are defined.
+* **Verifier.sol**: A contract that provides the verification logic for zkSNARK proofs.
+* **Errors.sol**: File where custom errors for contracts are defined.
+* **hashBalances.zok**: The Zokrates code that defines the zkSNARK circuit used for verifying token transfers.
+
+## Usage
+
+To deploy the ZkSNARK Token contract, initialize it with the following parameters:
+
+* **_verifier**: The address of the deployed Verifier contract.
+* **_name**: The name of the token.
+* **_symbol**: The symbol of the token.
+* **_initialHolders**: An array of addresses representing the initial token holders.
+<br>
+
+Once the contract is deployed, you can interact with it using the following methods:
+
+* **transfer**: Transfer tokens from the sender's address to the specified receiver. Requires a zkSNARK proof and input parameters.
+* **transferFrom**: Transfer tokens on behalf of the _from address to the _to address. Requires a zkSNARK proof, input parameters, and allowance from the sender.
+* **setApproval**: Set or revoke full allowance for a specific spender.
+
+## zkSNARK Circuit
+
+The zkSNARK circuit used in this contract verifies the integrity of token transfers. The Zokrates code for the circuit is available in the **hashBalances.zok** file. It ensures that the transferred amount is less than or equal to the sender's balance and validates the hash of the sender and receiver balances before and after the transfer.
