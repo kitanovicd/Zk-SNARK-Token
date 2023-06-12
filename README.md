@@ -49,3 +49,35 @@ Once the contract is deployed, you can interact with it using the following meth
 ## zkSNARK Circuit
 
 The zkSNARK circuit used in this contract verifies the integrity of token transfers. The Zokrates code for the circuit is available in the **hashBalances.zok** file. It ensures that the transferred amount is less than or equal to the sender's balance and validates the hash of the sender and receiver balances before and after the transfer.
+
+If you want to generate proof you need to follow next steps:
+
+Place yourself in zokrates directory:
+```bash
+cd zokrates
+```
+Compile:
+```bash
+zokrates compile -i hashBalances.zok
+```
+Perform the setup phase:
+```bash
+zokrates setup
+```
+Execute the program:
+```bash
+zokrates compute-witness -a <your-parameters>
+```
+Example from tests:
+```bash
+zokrates compute-witness -a 100 100 100 259054131873386606406206390099085174635 259054131873386606406206390099085174635 259054131873386606406206390099085174635 326522724692461750427768532537390503835 240644345464151569938884255059463943729
+```
+Generate proof:
+```bash
+zokrates generate-proof
+```
+
+After you generated proof you need to copy proof and input parameters and perform smart contract call
+
+
+
